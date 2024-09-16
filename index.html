@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1c1c1c;
+            font-family: Arial, sans-serif;
+        }
+
+        .game-board {
+            display: grid;
+            margin-top: 300px;
+            grid-template-columns: repeat(3, 150px); 
+            grid-template-rows: repeat(3, 150px);
+            gap: 20px;
+            background-color: #2c2c2c;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 80px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #3c3c3c;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .cell:hover {
+            background-color: #4c4c4c;
+            transform: scale(1.1);
+        }
+
+      .github{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            width: 300px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #3c3c3c;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            animation: glow 2s ease-in-out infinite;
+      }
+.github.cell:hover{
+      background-color: #4c4c4c;
+            transform: scale(1.1);
+}
+        .game-over-message {
+            margin-top: 30px;
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffffff;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .player-select, .difficulty-select {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+        }
+
+        .player-select input[type="radio"],
+        .difficulty-select input[type="radio"] {
+            margin-right: 10px;
+            accent-color: #ffffff;
+        }
+
+        @keyframes glow {
+            0% {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            }
+            100% {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: repeat(3, 100px);
+                grid-template-rows: repeat(3, 100px);
+                padding: 20px;
+            }
+
+            .cell {
+                font-size: 60px;
+            }
+
+            .game-over-message {
+                font-size: 24px;
+            }
+        }
+        @media (max-width: 600px) {
+            .game-board {
+              margin: 0;
+              padding: 0;
+                grid-template-columns: repeat(3, 100px);
+                grid-template-rows: repeat(3, 100px);
+                padding: 20px;
+            }
+
+            .cell {
+              margin: 0;
+              padding: 0;
+                font-size: 60px;
+            }
+
+            .game-over-message {
+              margin: 0;
+              padding: 0;
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-board">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+
+
+        
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+    </div>
+    <div class="game-over-message"></div>
+    <div class="player-select">
+        <label><input type="radio" name="player-mode" value="pvp" checked> Player vs Player</label>
+        <label><input type="radio" name="player-mode" value="pvc"> Player vs Computer</label>
+    </div>
+    <div class="difficulty-select">
+        <label><input type="radio" name="difficulty" value="easy" checked> Easy</label>
+        <label><input type="radio" name="difficulty" value="medium"> Medium</label>
+        <label><input type="radio" name="difficulty" value="hard"> Hard</label>
+    </div>
+<a href="">
+    <button class="github">View GitHub Code</button>
+</a>
+    <script>
+        const cells = document.querySelectorAll('.cell');
+        const gameOverMessage = document.querySelector('.game-over-message');
+        const playerModeRadios = document.querySelectorAll('input[name="player-mode"]');
+        const difficultyRadios = document.querySelectorAll('input[name="difficulty"]');
+        let currentPlayer = 'X';
+        let gameOver = false;
+        let playerMode = 'pvp';
+        let difficulty = 'easy';
+
+        function handleCellClick(event) {
+            const cell = event.target;
+            if (cell.textContent === '' && !gameOver) {
+                cell.textContent = currentPlayer;
+                cell.classList.add('glow');
+                checkWin();
+                if (playerMode === 'pvp') {
+                    switchPlayer();
+                } else {
+                    if (currentPlayer === 'X') {
+                        switchPlayer();
+                        if (!gameOver) {
+                            makeComputerMove();
+                        }
+                    }
+                }
+            }
+        }
+
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        }
+
+        function makeComputerMove() {
+            const emptyCells = Array.from(cells).filter(cell => cell.textContent === '');
+            if (emptyCells.length > 0) {
+                let bestMove;
+                switch (difficulty) {
+                    case 'easy':
+                        bestMove = getRandomEmptyCell(emptyCells);
+                        break;
+                    case 'medium':
+                        bestMove = getBestMoveForMediumDifficulty(emptyCells);
+                        break;
+                    case 'hard':
+                        bestMove = getBestMoveForHardDifficulty(emptyCells);
+                        break;
+                }
+                bestMove.textContent = currentPlayer;
+                bestMove.classList.add('glow');
+                checkWin();
+                switchPlayer();
+            }
+        }
+
+        function getRandomEmptyCell(emptyCells) {
+            const randomIndex = Math.floor(Math.random() * emptyCells.length);
+            return emptyCells[randomIndex];
+        }
+
+        function getBestMoveForMediumDifficulty(emptyCells) {
+            // Implement a simple AI strategy for medium difficulty
+            return getRandomEmptyCell(emptyCells);
+        }
+
+        function getBestMoveForHardDifficulty(emptyCells) {
+            // Implement a more advanced AI strategy for hard difficulty
+            return getRandomEmptyCell(emptyCells);
+        }
+
+        function checkWin() {
+            const winningCombinations = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            for (const combination of winningCombinations) {
+                const [a, b, c] = combination;
+                if (
+                    cells[a].textContent === currentPlayer &&
+                    cells[b].textContent === currentPlayer &&
+                    cells[c].textContent === currentPlayer
+                ) {
+                    gameOver = true;
+                    gameOverMessage.textContent = `Player ${currentPlayer} wins!`;
+                    alert(`Player ${currentPlayer} wins!`)
+                    cells.forEach(cell => cell.classList.remove('glow'));
+                    return;
+                }
+            }
+
+            if (Array.from(cells).every(cell => cell.textContent !== '')) {
+                gameOver = true;
+                gameOverMessage.textContent = "It's a tie!";
+                alert("It's A tie")
+                cells.forEach(cell => cell.classList.remove('glow'));
+                cells.forEach.value = "  "
+            }
+        }
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleCellClick);
+        });
+
+        playerModeRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                playerMode = radio.value;
+                resetGame();
+            });
+        });
+
+        difficultyRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                difficulty = radio.value;
+                resetGame();
+            });
+        });
+
+        function resetGame() {
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('glow');
+            });
+            currentPlayer = 'X';
+            gameOver = false;
+            gameOverMessage.textContent = '';
+        }
+    </script>
+</body>
+</html>
